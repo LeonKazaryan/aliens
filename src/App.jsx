@@ -558,6 +558,224 @@ function InteractiveMap() {
   )
 }
 
+// Review Card Component
+function ReviewCard({ review, index }) {
+  const renderRating = (rating) => {
+    const icons = ['📡', '👁️', '🦑'] // antennas, eyes, tentacles
+    return icons.slice(0, rating).map((icon, i) => (
+      <motion.span
+        key={i}
+        className="rating-icon"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+      >
+        {icon}
+      </motion.span>
+    ))
+  }
+
+  return (
+    <motion.div
+      className="review-card"
+      initial={{ opacity: 0, y: 50, scale: 0.8 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.8, delay: index * 0.2 }}
+      viewport={{ once: true }}
+      whileHover={{ 
+        scale: 1.05,
+        boxShadow: "0 20px 40px rgba(255, 193, 7, 0.3)"
+      }}
+    >
+      <div className="review-header">
+        <div className="reviewer-info">
+          <div className="reviewer-avatar">👽</div>
+          <div className="reviewer-details">
+            <h4 className="reviewer-name">{review.name}</h4>
+            <div className="reviewer-rating">
+              {renderRating(review.rating)}
+            </div>
+          </div>
+        </div>
+        <div className="review-date">{review.date}</div>
+      </div>
+      
+      <div className="review-content">
+        <p className="review-text">{review.text}</p>
+      </div>
+      
+      <div className="review-footer">
+        <span className="review-planet">🌍 {review.planet}</span>
+        <span className="review-verified">✅ Подтверждённый турист</span>
+      </div>
+    </motion.div>
+  )
+}
+
+// Reviews Section Component
+function ReviewsSection() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [reviewCount, setReviewCount] = useState(67981)
+
+  const reviews = [
+    {
+      id: 1,
+      name: "Злуп-4 из системы Таргус",
+      rating: 5,
+      text: "Меня приняли за актёра. Теперь я живу в Голливуде. Местные очень гостеприимные!",
+      date: "2 дня назад",
+      planet: "Таргус-7"
+    },
+    {
+      id: 2,
+      name: "Квакс-9 из туманности Андромеды",
+      rating: 4,
+      text: "Слишком много воды. Тело расплавилось, но кайфанул. Обязательно вернусь!",
+      date: "1 неделю назад",
+      planet: "Андромеда-3"
+    },
+    {
+      id: 3,
+      name: "Блип-12 из созвездия Ориона",
+      rating: 5,
+      text: "Попробовал местную еду. Теперь у меня 3 желудка. Рекомендую всем!",
+      date: "3 дня назад",
+      planet: "Орион-5"
+    },
+    {
+      id: 4,
+      name: "Глюк-7 из галактики Млечный Путь",
+      rating: 3,
+      text: "Странные существа, но милые. Особенно понравились их домашние животные.",
+      date: "5 дней назад",
+      planet: "Млечный Путь-2"
+    },
+    {
+      id: 5,
+      name: "Зорп-15 из квазара NGC-1234",
+      rating: 5,
+      text: "Телепортировался в метро. Теперь я знаменитость в интернете!",
+      date: "1 день назад",
+      planet: "NGC-1234"
+    },
+    {
+      id: 6,
+      name: "Вуп-3 из чёрной дыры Стрелец А*",
+      rating: 4,
+      text: "Гравитация слабая, но люди интересные. Особенно понравились их технологии.",
+      date: "4 дня назад",
+      planet: "Стрелец А*"
+    }
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % Math.ceil(reviews.length / 3))
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + Math.ceil(reviews.length / 3)) % Math.ceil(reviews.length / 3))
+  }
+
+  // Increment review count periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setReviewCount(prev => prev + Math.floor(Math.random() * 3) + 1)
+    }, 5000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
+  const visibleReviews = reviews.slice(currentSlide * 3, (currentSlide + 1) * 3)
+
+  return (
+    <section className="reviews-section">
+      <div className="reviews-background">
+        <div className="reviews-pattern"></div>
+      </div>
+
+      <div className="reviews-container">
+        <motion.h2 
+          className="reviews-title"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+        >
+          Отзывы наших довольных туристов
+        </motion.h2>
+
+        <motion.div 
+          className="reviews-slider"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <motion.button
+            className="slider-button prev"
+            onClick={prevSlide}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            ←
+          </motion.button>
+
+          <div className="reviews-cards">
+            {visibleReviews.map((review, index) => (
+              <ReviewCard 
+                key={review.id}
+                review={review}
+                index={index}
+              />
+            ))}
+          </div>
+
+          <motion.button
+            className="slider-button next"
+            onClick={nextSlide}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            →
+          </motion.button>
+        </motion.div>
+
+        <motion.div 
+          className="reviews-counter"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <p className="counter-text">
+            <AnimatedCounter value={reviewCount} /> довольных существ оставили отзыв. 
+            <br />
+            <span className="counter-subtext">Или телепортировались без него.</span>
+          </p>
+        </motion.div>
+
+        <motion.div 
+          className="slider-dots"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.9 }}
+          viewport={{ once: true }}
+        >
+          {Array.from({ length: Math.ceil(reviews.length / 3) }).map((_, index) => (
+            <motion.button
+              key={index}
+              className={`dot ${index === currentSlide ? 'active' : ''}`}
+              onClick={() => setCurrentSlide(index)}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.8 }}
+            />
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 // About Section Component
 function AboutSection() {
   const { scrollYProgress } = useScroll()
@@ -898,6 +1116,9 @@ function App() {
 
       {/* Interactive Map Section */}
       <InteractiveMap />
+
+      {/* Reviews Section */}
+      <ReviewsSection />
     </>
   )
 }
