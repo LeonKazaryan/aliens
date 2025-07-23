@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars, OrbitControls } from '@react-three/fiber'
+import { Stars, OrbitControls } from '@react-three/drei'
 import gsap from 'gsap'
 import './App.css'
 
@@ -311,6 +311,248 @@ function SciFiInterface() {
             ))}
           </div>
         </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// Tourist Spot Component
+function TouristSpot({ spot, onSpotClick }) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <motion.div
+      className={`tourist-spot ${spot.category}`}
+      style={{
+        left: `${spot.x}%`,
+        top: `${spot.y}%`
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onSpotClick(spot)}
+      whileHover={{ scale: 1.2 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      <div className="spot-marker">
+        <span className="spot-icon">{spot.icon}</span>
+        <motion.div 
+          className="spot-pulse"
+          animate={{ 
+            scale: [1, 1.5, 1],
+            opacity: [0.5, 0, 0.5]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </div>
+      
+      {isHovered && (
+        <motion.div 
+          className="spot-tooltip"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+        >
+          <h4>{spot.name}</h4>
+          <p>{spot.description}</p>
+          <span className="spot-category">{spot.category}</span>
+        </motion.div>
+      )}
+    </motion.div>
+  )
+}
+
+// Interactive Map Component
+function InteractiveMap() {
+  const [selectedFilters, setSelectedFilters] = useState(['food', 'noise', 'threat'])
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationSpot, setNotificationSpot] = useState(null)
+
+  const touristSpots = [
+    {
+      id: 1,
+      name: "Яма с танцующими людьми",
+      description: "Глубокое подземное сооружение, где местные существа ритмично двигаются под громкие звуки. Возможно, это ритуал призывания.",
+      icon: "🕳️",
+      category: "noise",
+      x: 20,
+      y: 30
+    },
+    {
+      id: 2,
+      name: "Магазин с бесконечной очередью",
+      description: "Место, где существа стоят в длинной линии, чтобы получить товары. Похоже на религиозный обряд терпения.",
+      icon: "🛒",
+      category: "threat",
+      x: 35,
+      y: 25
+    },
+    {
+      id: 3,
+      name: "Гора, которую обходят — и не спрашивают",
+      description: "Высокое сооружение, которое местные избегают. Возможно, там живут древние боги или опасные существа.",
+      icon: "🏢",
+      category: "threat",
+      x: 50,
+      y: 40
+    },
+    {
+      id: 4,
+      name: "Стеклянные ловушки (музеи)",
+      description: "Прозрачные здания, где существа добровольно заходят и смотрят на старые предметы. Странный способ времяпрепровождения.",
+      icon: "🏛️",
+      category: "noise",
+      x: 65,
+      y: 35
+    },
+    {
+      id: 5,
+      name: "Хранилище горячих жидкостей",
+      description: "Места, где подают обжигающие напитки. Местные называют это 'кофейни'. Очень популярно.",
+      icon: "☕",
+      category: "food",
+      x: 25,
+      y: 60
+    },
+    {
+      id: 6,
+      name: "Поля с круглыми объектами",
+      description: "Большие открытые пространства, где существа бегают за круглым предметом. Спортивный ритуал.",
+      icon: "⚽",
+      category: "noise",
+      x: 70,
+      y: 70
+    },
+    {
+      id: 7,
+      name: "Подземные туннели",
+      description: "Сеть подземных проходов, где существа передвигаются в металлических коробках. Эффективная система транспорта.",
+      icon: "🚇",
+      category: "threat",
+      x: 45,
+      y: 55
+    },
+    {
+      id: 8,
+      name: "Храмы потребления",
+      description: "Огромные здания, где существа поклоняются товарам. Называют 'торговые центры'.",
+      icon: "🏬",
+      category: "food",
+      x: 80,
+      y: 45
+    }
+  ]
+
+  const filters = [
+    { id: 'food', label: '🍕 Пищевые места', icon: '🍕' },
+    { id: 'noise', label: '🔊 Странные шумы', icon: '🔊' },
+    { id: 'threat', label: '⚠️ Потенциальная угроза', icon: '⚠️' }
+  ]
+
+  const toggleFilter = (filterId) => {
+    setSelectedFilters(prev => 
+      prev.includes(filterId) 
+        ? prev.filter(id => id !== filterId)
+        : [...prev, filterId]
+    )
+  }
+
+  const handleSpotClick = (spot) => {
+    setNotificationSpot(spot)
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 3000)
+  }
+
+  const filteredSpots = touristSpots.filter(spot => selectedFilters.includes(spot.category))
+
+  return (
+    <section className="map-section">
+      <div className="map-background">
+        <div className="space-stars"></div>
+        <div className="map-glow"></div>
+      </div>
+
+      <div className="map-container">
+        <motion.h2 
+          className="map-title"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+        >
+          Карта достопримечательностей Земли
+        </motion.h2>
+
+        <motion.div 
+          className="map-filters"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          {filters.map((filter) => (
+            <motion.label
+              key={filter.id}
+              className="filter-item"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <input
+                type="checkbox"
+                checked={selectedFilters.includes(filter.id)}
+                onChange={() => toggleFilter(filter.id)}
+                className="filter-checkbox"
+              />
+              <span className="filter-icon">{filter.icon}</span>
+              <span className="filter-label">{filter.label}</span>
+            </motion.label>
+          ))}
+        </motion.div>
+
+        <motion.div 
+          className="map-area"
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <div className="earth-map">
+            <div className="map-continents">
+              {/* Simplified continent shapes */}
+              <div className="continent north-america"></div>
+              <div className="continent south-america"></div>
+              <div className="continent europe"></div>
+              <div className="continent africa"></div>
+              <div className="continent asia"></div>
+              <div className="continent australia"></div>
+            </div>
+            
+            {filteredSpots.map((spot) => (
+              <TouristSpot 
+                key={spot.id}
+                spot={spot}
+                onSpotClick={handleSpotClick}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {showNotification && (
+          <motion.div 
+            className="notification"
+            initial={{ opacity: 0, y: 50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.8 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="notification-content">
+              <span className="notification-icon">✅</span>
+              <div className="notification-text">
+                <h4>Тур добавлен в протокол</h4>
+                <p>{notificationSpot?.name}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   )
@@ -653,6 +895,9 @@ function App() {
 
       {/* Sci-Fi Interface Section */}
       <SciFiInterface />
+
+      {/* Interactive Map Section */}
+      <InteractiveMap />
     </>
   )
 }
