@@ -499,6 +499,286 @@ body {
   line-height: 1.5;
 }
 
+/* Sci-Fi Interface Section */
+.scifi-section {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  padding: 4rem 0;
+  overflow: hidden;
+}
+
+.scifi-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 150, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+.scan-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    transparent 0%,
+    rgba(0, 150, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  animation: scanLines 3s linear infinite;
+}
+
+@keyframes scanLines {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.noise-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  animation: noise 0.5s linear infinite;
+}
+
+@keyframes noise {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 10%); }
+  80% { transform: translate(3%, 15%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
+.scifi-container {
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.scifi-main {
+  text-align: center;
+}
+
+.scifi-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #00bcd4, #0097a7, #006064);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 3rem;
+  text-shadow: 0 0 30px rgba(0, 188, 212, 0.5);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+/* Hologram Container */
+.hologram-container {
+  margin: 3rem 0;
+  position: relative;
+}
+
+.hologram-earth {
+  position: relative;
+  display: inline-block;
+}
+
+.earth-sphere {
+  font-size: 8rem;
+  filter: drop-shadow(0 0 40px rgba(0, 150, 255, 0.6));
+  position: relative;
+  z-index: 2;
+}
+
+.scan-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border: 3px solid rgba(0, 150, 255, 0.8);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Scan Button */
+.scan-button-container {
+  margin-top: 3rem;
+}
+
+.scan-button {
+  background: linear-gradient(135deg, #0097a7 0%, #006064 100%);
+  border: 2px solid #00bcd4;
+  border-radius: 10px;
+  padding: 1.5rem 3rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 150, 255, 0.3);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.scan-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 188, 212, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.scan-button:hover::before {
+  left: 100%;
+}
+
+.scan-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0, 150, 255, 0.4);
+}
+
+.scan-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Console Panel */
+.console-panel {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00bcd4;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.console-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 40%, rgba(0, 188, 212, 0.05) 50%, transparent 60%);
+  animation: consoleGlow 3s ease-in-out infinite;
+}
+
+@keyframes consoleGlow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.console-header {
+  background: linear-gradient(135deg, #0097a7, #006064);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #00bcd4;
+}
+
+.console-title {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.console-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #00ff88;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.console-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.console-log {
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(0, 188, 212, 0.2);
+}
+
+.console-time {
+  color: #00bcd4;
+  margin-right: 0.5rem;
+  font-weight: 600;
+}
+
+.console-message {
+  color: #fff;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .hero-content {
@@ -564,6 +844,25 @@ body {
   .about-container {
     padding: 0 1rem;
   }
+
+  .scifi-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+
+  .console-panel {
+    height: 300px;
+  }
+
+  .earth-sphere {
+    font-size: 5rem;
+  }
+
+  .scan-button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -607,6 +906,22 @@ body {
 
   .timeline-title {
     font-size: 1.1rem;
+  }
+
+  .scifi-title {
+    font-size: 2rem;
+  }
+
+  .earth-sphere {
+    font-size: 4rem;
+  }
+
+  .console-panel {
+    height: 250px;
+  }
+
+  .console-content {
+    font-size: 0.8rem;
   }
 }
 

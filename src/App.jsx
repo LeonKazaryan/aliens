@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars, OrbitControls } from '@react-three/drei'
+import { Stars, OrbitControls } from '@react-three/fiber'
 import gsap from 'gsap'
 import './App.css'
 
@@ -134,6 +134,185 @@ function TimelineItem({ year, title, description, delay }) {
         <p className="timeline-description">{description}</p>
       </div>
     </motion.div>
+  )
+}
+
+// Console Log Component
+function ConsoleLog({ message, delay }) {
+  return (
+    <motion.div 
+      className="console-log"
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, delay }}
+    >
+      <span className="console-time">[{new Date().toLocaleTimeString()}]</span>
+      <span className="console-message">{message}</span>
+    </motion.div>
+  )
+}
+
+// Sci-Fi Interface Component
+function SciFiInterface() {
+  const [consoleLogs, setConsoleLogs] = useState([])
+  const [isScanning, setIsScanning] = useState(false)
+  const consoleRef = useRef()
+
+  const systemLogs = [
+    "Локация: Планета Земля — ошибка логики обнаружена",
+    "Сканирую: пробка на МКАДе засчитана как достопримечательность",
+    "Анализ: местные существа называют это 'рабочим днём'",
+    "ВНИМАНИЕ: обнаружена странная субстанция под названием 'кофе'",
+    "Сканирование: 99% населения смотрит в прямоугольные устройства",
+    "ОШИБКА: не удалось понять логику 'понедельника'",
+    "Анализ завершён: планета пригодна для туризма (с осторожностью)",
+    "СИСТЕМА: загружаю карту достопримечательностей...",
+    "ПРОЦЕСС: инициализация телепортации...",
+    "СТАТУС: готов к массовому вторжению (экскурсии)"
+  ]
+
+  const addConsoleLog = (message) => {
+    const newLog = {
+      id: Date.now(),
+      message,
+      timestamp: new Date().toLocaleTimeString()
+    }
+    setConsoleLogs(prev => [...prev.slice(-8), newLog]) // Keep only last 9 logs
+  }
+
+  const startScanning = () => {
+    setIsScanning(true)
+    addConsoleLog("ИНИЦИАЛИЗАЦИЯ: начало сканирования планеты Земля...")
+    
+    // Add logs with delays
+    systemLogs.forEach((log, index) => {
+      setTimeout(() => {
+        addConsoleLog(log)
+      }, (index + 1) * 800)
+    })
+
+    // Scroll to next section after scanning
+    setTimeout(() => {
+      window.scrollTo({
+        top: window.innerHeight * 3,
+        behavior: 'smooth'
+      })
+      setIsScanning(false)
+    }, systemLogs.length * 800 + 2000)
+  }
+
+  return (
+    <section className="scifi-section">
+      <div className="scifi-background">
+        <div className="grid-overlay"></div>
+        <div className="scan-lines"></div>
+        <div className="noise-overlay"></div>
+      </div>
+
+      <div className="scifi-container">
+        <div className="scifi-main">
+          <motion.h2 
+            className="scifi-title"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+          >
+            Сканируй грязный шар
+          </motion.h2>
+
+          <motion.div 
+            className="hologram-container"
+            initial={{ opacity: 0, scale: 0.5 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <div className="hologram-earth">
+              <motion.div 
+                className="earth-sphere"
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: isScanning ? [1, 1.1, 1] : 1
+                }}
+                transition={{ 
+                  rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                  scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                }}
+              >
+                🌍
+              </motion.div>
+              
+              {isScanning && (
+                <motion.div 
+                  className="scan-ring"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 2, opacity: [1, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                />
+              )}
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="scan-button-container"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <motion.button
+              className="scan-button"
+              onClick={startScanning}
+              disabled={isScanning}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 40px rgba(0, 150, 255, 0.4)"
+              }}
+              whileTap={{ scale: 0.95 }}
+              animate={isScanning ? {
+                boxShadow: [
+                  "0 0 20px rgba(0, 150, 255, 0.5)",
+                  "0 0 40px rgba(0, 150, 255, 0.8)",
+                  "0 0 20px rgba(0, 150, 255, 0.5)"
+                ]
+              } : {}}
+              transition={{ 
+                boxShadow: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+              }}
+            >
+              🪐 НАЧАТЬ АНАЛИЗ ПЛАНЕТЫ
+            </motion.button>
+          </motion.div>
+        </div>
+
+        <motion.div 
+          className="console-panel"
+          initial={{ opacity: 0, x: 100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.9 }}
+          viewport={{ once: true }}
+        >
+          <div className="console-header">
+            <div className="console-title">СИСТЕМНЫЕ ЛОГИ</div>
+            <div className="console-status">
+              <span className="status-dot"></span>
+              АКТИВЕН
+            </div>
+          </div>
+          
+          <div className="console-content" ref={consoleRef}>
+            {consoleLogs.map((log) => (
+              <ConsoleLog 
+                key={log.id}
+                message={log.message}
+                delay={0}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
   )
 }
 
@@ -471,6 +650,9 @@ function App() {
 
       {/* About Section */}
       <AboutSection />
+
+      {/* Sci-Fi Interface Section */}
+      <SciFiInterface />
     </>
   )
 }
