@@ -1,0 +1,478 @@
+import { useState, useEffect, useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Stars, OrbitControls } from '@react-three/drei'
+import gsap from 'gsap'
+import './App.css'
+
+// 3D UFO Component
+function UFO({ position, speed }) {
+  const meshRef = useRef()
+  
+  useFrame((state) => {
+    meshRef.current.position.x += speed * 0.01
+    meshRef.current.rotation.y += 0.01
+    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2) * 0.1
+    
+    // Reset position when UFO goes off screen
+    if (meshRef.current.position.x > 20) {
+      meshRef.current.position.x = -20
+    }
+  })
+
+  return (
+    <group ref={meshRef} position={position}>
+      {/* UFO Body */}
+      <mesh>
+        <cylinderGeometry args={[1, 1.5, 0.3, 8]} />
+        <meshStandardMaterial color="#4a90e2" metalness={0.8} roughness={0.2} />
+      </mesh>
+      {/* UFO Dome */}
+      <mesh position={[0, 0.2, 0]}>
+        <sphereGeometry args={[0.8, 16, 16]} />
+        <meshStandardMaterial color="#7bb3f0" transparent opacity={0.7} />
+      </mesh>
+      {/* UFO Lights */}
+      <mesh position={[0, -0.1, 0]}>
+        <ringGeometry args={[0.5, 1.2, 8]} />
+        <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={0.5} />
+      </mesh>
+    </group>
+  )
+}
+
+// Animated Counter Component
+function AnimatedCounter({ value }) {
+  const [displayValue, setDisplayValue] = useState(0)
+  
+  useEffect(() => {
+    const duration = 2000
+    const startValue = displayValue
+    const endValue = value
+    
+    gsap.to({}, {
+      duration: duration / 1000,
+      onUpdate: function() {
+        const currentValue = Math.floor(startValue + (endValue - startValue) * this.progress())
+        setDisplayValue(currentValue)
+      }
+    })
+  }, [value])
+
+  return (
+    <motion.span
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 200 }}
+      className="counter-number"
+    >
+      {displayValue.toLocaleString()}
+    </motion.span>
+  )
+}
+
+// Animated Logo Component
+function AnimatedLogo() {
+  return (
+    <motion.div 
+      className="animated-logo"
+      animate={{ 
+        rotate: [0, 360],
+        scale: [1, 1.1, 1]
+      }}
+      transition={{ 
+        rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+        scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+      }}
+    >
+      <div className="logo-earth">🌍</div>
+      <motion.div 
+        className="logo-tentacle"
+        animate={{ 
+          rotate: [0, 45, -45, 0],
+          scale: [1, 1.2, 1]
+        }}
+        transition={{ 
+          duration: 4, 
+          repeat: Infinity, 
+          ease: "easeInOut" 
+        }}
+      >
+        🦑
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// Timeline Item Component
+function TimelineItem({ year, title, description, delay }) {
+  return (
+    <motion.div 
+      className="timeline-item"
+      initial={{ opacity: 0, x: -100 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8, delay }}
+      viewport={{ once: true }}
+    >
+      <div className="timeline-marker">
+        <motion.div 
+          className="timeline-dot"
+          animate={{ 
+            scale: [1, 1.3, 1],
+            boxShadow: [
+              "0 0 0 0 rgba(0, 255, 136, 0.4)",
+              "0 0 0 20px rgba(0, 255, 136, 0)",
+              "0 0 0 0 rgba(0, 255, 136, 0)"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </div>
+      <div className="timeline-content">
+        <h3 className="timeline-year">{year}</h3>
+        <h4 className="timeline-title">{title}</h4>
+        <p className="timeline-description">{description}</p>
+      </div>
+    </motion.div>
+  )
+}
+
+// About Section Component
+function AboutSection() {
+  const { scrollYProgress } = useScroll()
+  const logoY = useTransform(scrollYProgress, [0, 1], [0, -200])
+  const timelineY = useTransform(scrollYProgress, [0, 1], [0, 100])
+
+  const scrollToReviews = () => {
+    // Scroll to reviews section (we'll add this later)
+    window.scrollTo({
+      top: window.innerHeight * 2,
+      behavior: 'smooth'
+    })
+  }
+
+  return (
+    <section className="about-section">
+      <div className="about-background">
+        <div className="ancient-pattern"></div>
+      </div>
+      
+      <div className="about-container">
+        <motion.div 
+          className="about-header"
+          style={{ y: logoY }}
+        >
+          <AnimatedLogo />
+          <motion.h2 
+            className="about-title"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+          >
+            Мы телепортировали первого туриста ещё до постройки пирамид
+          </motion.h2>
+        </motion.div>
+
+        <motion.div 
+          className="timeline-container"
+          style={{ y: timelineY }}
+        >
+          <div className="timeline-line"></div>
+          
+          <TimelineItem 
+            year="-4000 до н.э."
+            title="Первая экскурсия к шумерам"
+            description="Наши предки открыли первый офис в Месопотамии. Туристы были в восторге от местной кухни и архитектуры."
+            delay={0.2}
+          />
+          
+          <TimelineItem 
+            year="1776"
+            title="Массовый тур в Америку"
+            description="Маскировка — воздушные шары. Никто не заметил, что это были наши корабли. Гениально!"
+            delay={0.4}
+          />
+          
+          <TimelineItem 
+            year="2023"
+            title="Телепортация отменена из-за ковида"
+            description="Даже инопланетяне болели. Пришлось закрыть порталы на карантин. Скучно было!"
+            delay={0.6}
+          />
+        </motion.div>
+
+        <motion.div 
+          className="about-actions"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <motion.button
+            className="scrolls-button"
+            onClick={scrollToReviews}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: "0 15px 35px rgba(255, 193, 7, 0.4)"
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            📜 Читать древний свиток с отзывами
+          </motion.button>
+        </motion.div>
+
+        <motion.div 
+          className="partners-section"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1 }}
+          viewport={{ once: true }}
+        >
+          <h3 className="partners-title">Наши партнёры по галактике</h3>
+          <div className="partners-grid">
+            <motion.a 
+              href="#" 
+              className="partner-card"
+              whileHover={{ 
+                scale: 1.05,
+                y: -10,
+                boxShadow: "0 20px 40px rgba(0, 255, 136, 0.3)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="partner-icon">🌌</div>
+              <h4>Галактический Booking</h4>
+              <p>Лучшие цены на отели в 47 галактиках</p>
+            </motion.a>
+            
+            <motion.a 
+              href="#" 
+              className="partner-card"
+              whileHover={{ 
+                scale: 1.05,
+                y: -10,
+                boxShadow: "0 20px 40px rgba(255, 107, 107, 0.3)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="partner-icon">🪐</div>
+              <h4>MetaPluto</h4>
+              <p>Виртуальные туры по Солнечной системе</p>
+            </motion.a>
+            
+            <motion.a 
+              href="#" 
+              className="partner-card"
+              whileHover={{ 
+                scale: 1.05,
+                y: -10,
+                boxShadow: "0 20px 40px rgba(78, 205, 196, 0.3)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="partner-icon">🦎</div>
+              <h4>TripReptiloid</h4>
+              <p>Эксклюзивные туры для рептилоидов</p>
+            </motion.a>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+function App() {
+  const [teleportCount, setTeleportCount] = useState(15420)
+  const containerRef = useRef()
+  const { scrollYProgress } = useScroll()
+  
+  // Parallax effect
+  const y = useTransform(scrollYProgress, [0, 1], [0, -300])
+  
+  // Increment counter on mount and periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTeleportCount(prev => prev + Math.floor(Math.random() * 5) + 1)
+    }, 3000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
+  const scrollToForm = () => {
+    // Smooth scroll to form (we'll add this later)
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: 'smooth'
+    })
+  }
+
+  return (
+    <>
+      <div className="hero-container" ref={containerRef}>
+        {/* Animated Background */}
+        <div className="space-background">
+          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+            <ambientLight intensity={0.3} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            <UFO position={[-10, 2, 0]} speed={1} />
+            <UFO position={[5, -1, 0]} speed={-0.8} />
+            <UFO position={[-5, 3, 0]} speed={1.2} />
+            <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.1} />
+          </Canvas>
+        </div>
+
+        {/* Floating Earth */}
+        <motion.div 
+          className="floating-earth"
+          animate={{ 
+            y: [0, -20, 0],
+            rotate: [0, 360]
+          }}
+          transition={{ 
+            y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 60, repeat: Infinity, ease: "linear" }
+          }}
+        >
+          🌍
+        </motion.div>
+
+        {/* Main Content */}
+        <div className="hero-content">
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="hero-text"
+          >
+            <motion.h1
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="hero-title"
+            >
+              Покажи людям, кто тут{' '}
+              <motion.span
+                className="dominant-species"
+                animate={{ 
+                  color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'],
+                  textShadow: [
+                    '0 0 20px #ff6b6b',
+                    '0 0 20px #4ecdc4', 
+                    '0 0 20px #45b7d1',
+                    '0 0 20px #96ceb4',
+                    '0 0 20px #feca57'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                доминирующий вид!
+              </motion.span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="hero-subtitle"
+            >
+              Туры на планету, где воздух всё ещё бесплатный{' '}
+              <motion.span
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                (иногда)
+              </motion.span>
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="cta-section"
+            >
+              <motion.button
+                className="cta-button"
+                onClick={scrollToForm}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0, 255, 136, 0.4)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  boxShadow: [
+                    "0 10px 30px rgba(0, 255, 136, 0.3)",
+                    "0 20px 40px rgba(0, 255, 136, 0.6)",
+                    "0 10px 30px rgba(0, 255, 136, 0.3)"
+                  ]
+                }}
+                transition={{ 
+                  boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                }}
+              >
+                🚀 Телепортируйся сейчас
+              </motion.button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.5 }}
+              className="counter-section"
+            >
+              <p className="counter-text">
+                Уже телепортировались: <AnimatedCounter value={teleportCount} /> существ
+              </p>
+              <motion.div
+                className="counter-bar"
+                initial={{ width: 0 }}
+                animate={{ width: `${(teleportCount % 1000) / 10}%` }}
+                transition={{ duration: 1, delay: 2 }}
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Floating Elements */}
+        <motion.div
+          className="floating-ufo"
+          animate={{ 
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            rotate: [0, 10, -10, 0]
+          }}
+          transition={{ 
+            duration: 8, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+        >
+          🛸
+        </motion.div>
+
+        <motion.div
+          className="floating-alien"
+          animate={{ 
+            x: [0, -80, 0],
+            y: [0, 30, 0],
+            rotate: [0, -5, 5, 0]
+          }}
+          transition={{ 
+            duration: 6, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+            delay: 2
+          }}
+        >
+          👽
+        </motion.div>
+      </div>
+
+      {/* About Section */}
+      <AboutSection />
+    </>
+  )
+}
+
+export default App
